@@ -4,22 +4,40 @@ include '../../config/db_conn.php';
 if (isset($_POST['submit'])) {
     $label = $_POST['label'];
     $description = $_POST['description'];
-    $image = $_POST['image'];
     
-    $date_created = date("d/m/Y");
+    // Vérifier si un fichier a été téléchargé
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        // Chemin de destination du fichier
+        $target_dir = "../../uploads/";
+        $target_file = $target_dir . basename($_FILES["image"]["name"]);
 
-    $sql = "INSERT INTO `game`(`id`, `label`, `description`, 
-   `image`, `date_created`) VALUES 
-   (NULL, '$label' ,'$description','$image','$date_created')";
+        // Déplacer le fichier téléchargé vers le répertoire de destination
+        if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+            // Succès : récupérer le nom du fichier pour l'insérer dans la base de données
+            $image = basename($_FILES["image"]["name"]);
 
-    $result = mysqli_query($conn, $sql);
-    if ($result) {
-        header("Location: ../../game.php?msg=New record created successfully");
-        exit();
+            // Date de création du jeu
+            $date_created = date("d/m/Y");
+
+            // Requête d'insertion avec le nom du fichier image
+            $sql = "INSERT INTO `game`(`id`, `label`, `description`, `image`, `date_created`) VALUES (NULL, '$label' ,'$description','$image','$date_created')";
+
+            $result = mysqli_query($conn, $sql);
+            if ($result) {
+                header("Location: ../../game.php?msg=New record created successfully");
+                exit();
+            } else {
+                echo "failed: " . mysqli_error($conn);
+            }
+        } else {
+            echo "Sorry, there was an error uploading your file.";
+        }
     } else {
-        echo "failed: " . mysqli_error($conn);
+        echo "No file uploaded or an error occurred.";
     }
 }
+?>
+
 ?>
 <?php include('../../template/header.php') ?>
 <main class="content px-3 py-4">
@@ -31,7 +49,7 @@ if (isset($_POST['submit'])) {
             </div>
 
             <div class="container d-flex justify-content-center">
-                <form action="" method="post" style="width: 50vw; min-width:300px">
+                <form action="" method="post" style="width: 50vw; min-width:300px" enctype=multipart/form-data>
                     <div class="mb-3">
                         <input type="text" class="form-control" name="label" placeholder="Label">
                     </div>
@@ -40,7 +58,7 @@ if (isset($_POST['submit'])) {
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Image :</label>
-                        <input type="text" class="form-control" name="image" placeholder="image">
+                        <input type="file" class="form-control" name="image" placeholder="image">
                     </div>
 
                     <div>

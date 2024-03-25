@@ -5,26 +5,48 @@ if (isset($_POST['submit'])) {
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
     $email = $_POST['email'];
-    //    $gender = $_POST["gender"];
+    // $gender = $_POST["gender"];
     $mdp = $_POST['mdp'];
-    $image = $_POST['image'];
     $status = $_POST['status'];
     $date_naissance = $_POST['date_naissance'];
 
-    $sql = "INSERT INTO `membre`(`id`, `first_name`, `last_name`, 
-   `email`, `mdp`, `image`, `status`, `date_naissance`) VALUES 
-   (NULL, '$first_name' ,'$last_name','$email','$mdp','$image'
-   , 'Membre' , '$date_naissance')";
+    // Check if a file is uploaded
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        // File uploaded successfully, process it
+        $target_dir = "../../uploads/"; // Destination directory
+        $target_file = $target_dir . basename($_FILES["image"]["name"]); // Path to the uploaded file
+        
+        // Move the uploaded file to the destination directory
+        if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+            // File upload successful, proceed with database insertion
+            $image = basename($_FILES["image"]["name"]); // File name to store in the database
 
-    $result = mysqli_query($conn, $sql);
-    if ($result) {
-        header("Location: ../../membre.php?msg=New record created successfully");
-        exit();
+            // SQL query to insert data into the database
+            $sql = "INSERT INTO `membre`(`id`, `first_name`, `last_name`, `email`, `mdp`, `image`, `status`, `date_naissance`) VALUES (NULL, '$first_name' ,'$last_name','$email','$mdp','$image', 'Membre' , '$date_naissance')";
+            
+            // Execute the query
+            $result = mysqli_query($conn, $sql);
+
+            // Check if the insertion was successful
+            if ($result) {
+                // Redirect to the desired page
+                header("Location: ../../membre.php?msg=New record created successfully");
+                exit();
+            } else {
+                // Error in executing the query
+                echo "Failed: " . mysqli_error($conn);
+            }
+        } else {
+            // Error in moving the uploaded file
+            echo "Sorry, there was an error uploading your file.";
+        }
     } else {
-        echo "failed: " . mysqli_error($conn);
+        // No file uploaded or an error occurred
+        echo "No file uploaded or an error occurred.";
     }
 }
 ?>
+
 <?php include('../../template/header.php') ?>
 <main class="content px-3 py-4">
     <div class="container-fluid">
@@ -35,7 +57,7 @@ if (isset($_POST['submit'])) {
         </div>
 
         <div class="container d-flex justify-content-center">
-            <form action="" method="post" style="width: 50vw; min-width:300px">
+            <form action="" method="post" style="width: 50vw; min-width:300px"  enctype=multipart/form-data>
                 <div class="row mb-3">
                     <div class="col">
                         <label class="form-label">First Name :</label>
@@ -67,7 +89,7 @@ if (isset($_POST['submit'])) {
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Image :</label>
-                    <input type="text" class="form-control" name="image" placeholder="image">
+                    <input type="file" class="form-control" name="image" placeholder="image">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">date naissance :</label>

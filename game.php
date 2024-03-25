@@ -43,7 +43,9 @@
                             <th> <?php echo $row['id'] ?></th>
                             <th> <?php echo $row['label'] ?></th>
                             <th> <?php echo $row['description'] ?></th>
-                            <th> <?php echo $row['image'] ?></th>
+                            <!-- Afficher l'image -->
+                            <td><img src="./uploads/<?php echo $row['image'] ?>" alt="Image" style="max-width: 100px;"></td>
+
                             <th> <?php echo $row['date_created'] ?></th>
 
                             <td>

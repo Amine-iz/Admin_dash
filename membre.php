@@ -49,7 +49,9 @@
                             <th> <?php echo $row['email'] ?></th>
                             <!-- <th> <?php //echo $row['mdp'] 
                                         ?></th> -->
-                            <th> <?php echo $row['image'] ?></th>
+                             <!-- Afficher l'image -->
+                             <td><img src="./uploads/<?php echo $row['image'] ?>" alt="Image" style="max-width: 100px;"></td>
+
                             <th> <?php echo $row['status'] ?></th>
                             <th> <?php echo $row['date_naissance'] ?></th>
 
